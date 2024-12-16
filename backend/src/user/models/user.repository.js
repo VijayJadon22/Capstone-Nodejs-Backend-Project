@@ -12,3 +12,32 @@ export const findUserRepo = async (factor, withPassword = false) => {
     };
 };
 
+export const findUserForPasswordResetRepo = async (hashtoken) => {
+    const user = await UserModel.findOne({
+        resetPasswordToken: hashtoken,
+        resetPasswordExpire: { $gt: Date.now() }
+    });
+
+    return user;
+};
+
+export const updateUserProfileRepo = async (id, data) => {
+    return await UserModel.findOneAndUpdate(
+        { _id: id },
+        data,
+        {
+            new: true,
+            runValidators: true,
+            useFindAndModify: false
+        }
+    );
+};
+
+export const getAllUsersRepo = async () => {
+    return await UserModel.find({});
+};
+
+export const deleteUserRepo = async (id) => {
+    return await UserModel.findByIdAndDelete(id);
+}
+

@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import validator from "validator";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -12,7 +14,7 @@ const userSchema = new mongoose.Schema({
     email: {
         type: String,
         required: [true, "user email is required"],
-        unique: true,
+        unique: true, 
         validate: [validator.isEmail, "Please enter a valid email"],
     },
     password: {
@@ -48,6 +50,33 @@ userSchema.pre("save", async function (next) {
     }
     next(); // Proceed to the next middleware
 });
+
+// user password compare
+userSchema.methods.comparePassword = async function (password) {
+    return await bcrypt.compare(password, this.password);
+};
+
+// JWT Token
+userSchema.methods.getJWTToken = function () {
+    return jwt.sign({ id: this._id }, process.env.JWT_Secret, { expiresIn: process.env.JWT_Expire });
+};
+
+// getResetPasswordToken and store the token in resetPasswordToken and resetPasswordExpire
+userSchema.methods.getResetPasswordToken = async function () {
+    const resetToken = crypto.randomBytes(20).toString("hex");
+
+    this.resetPasswordToken = crypto
+        .createHash("sha256")
+        .update(resetToken)
+        .digest("hex");
+    
+    this.resetPasswordExpire = Date.now() + 10 * 60 * 1000; //10 minutes expiry for token or validity
+
+    return resetToken;
+};
+
+
+
 
 const UserModel = mongoose.model("User", userSchema);
 export default UserModel;
