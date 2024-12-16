@@ -50,7 +50,7 @@ export const getAllProducts = async (req, res, next) => {
 
 export const updateProduct = async (req, res, next) => {
     try {
-        const updatedProduct = await updateProductRepo(req.prams.id, req.body);
+        const updatedProduct = await updateProductRepo(req.params.id, req.body);
         if (!updatedProduct) {
             return res.status(400).json({ status: false, message: "Product not found!" });
         }
