@@ -6,11 +6,9 @@ import jwt from "jsonwebtoken";
 export const auth = async (req, res, next) => {
     try {
         const {token}  = req.cookies;
-
         if (!token) {
             return next(new ErrorHandler(401, "Login to access this route!"));
         }
-
         // Verify the token
         const data = jwt.verify(token, process.env.JWT_Secret);
 

@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 
 import { errorHandlerMiddleware } from "./middlewares/errorHandlerMiddleware.js";
 import userRoutes from "./src/user/routes/user.routes.js";
+import productRoutes from "./src/product/routes/product.routes.js";
 
 const configPath = path.resolve("backend", "config", "uat.env");
 dotenv.config({ path: configPath });
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use(express.static(path.join(path.resolve(), 'public')));
 
 app.use("/api/storefleet/user", userRoutes);
+app.use("/api/storefleet/product", productRoutes);
 
 
 app.use(errorHandlerMiddleware);

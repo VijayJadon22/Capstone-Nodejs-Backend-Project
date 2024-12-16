@@ -8,7 +8,8 @@ import {
     findUserForPasswordResetRepo,
     updateUserProfileRepo,
     getAllUsersRepo,
-    deleteUserRepo
+    deleteUserRepo,
+    updateUserRoleAndProfileRepo
 } from "../models/user.repository.js";
 import { stat } from "fs";
 
@@ -21,8 +22,8 @@ export const createNewUser = async (req, res, next) => {
             return res.status(400).json({ status: "false", error: "email already registered" });
         }
 
-        // Implement sendWelcomeEmail function to send welcome message
-        await sendWelcomeEmail(newUser);
+        // Implement sendEmail function to send welcome message
+        await sendEmail(newUser, "welcome");
         return res.status(200).json({ status: "success", user: newUser });
     } catch (error) {
         // Check if the error is due to duplicate email 
@@ -183,12 +184,37 @@ export const updateUserProfile = async (req, res, next) => {
     }
 };
 
+export const logoutUser = async (req, res, next) => {
+    try {
+        // Clear the token cookie
+        res.cookie('token', null, {
+            expires: new Date(Date.now()), // Set the cookie to expire immediately
+            httpOnly: true // Ensure the cookie is not accessible via JavaScript on the client side
+        });
+
+        // Send success response
+        res.status(200).json({
+            success: true,
+            message: "Logged out successfully!"
+        });
+    } catch (error) {
+        // Handle any errors that occur
+        return next(new ErrorHandler(400, error.message || 'Internal Server Error'));
+    }
+};
+
+
+
 //Admin only controller functions
 //these controllers function will only be accessible by admin
 
 export const getAllUsers = async (req, res, next) => {
     try {
         const allUsers = await getAllUsersRepo();
+        if (!allUsers) {
+            return res.status(400).json({ status: false, msg: "No user Found" });
+        }
+        res.status(200).json({ status: true, allUsers });
     } catch (error) {
         return next(new ErrorHandler(400, error.message || 'Internal Server Error'));
     }
@@ -218,6 +244,29 @@ export const deleteUser = async (req, res, next) => {
         return next(new ErrorHandler(400, error));
     }
 };
+
+export const updateUserProfileAndRole = async (req, res, next) => {
+    try {
+        // Call the repository function to update the user profile and role by ID
+        const updatedUser = await updateUserRoleAndProfileRepo(req.params.id, req.body);
+
+        // Check if the user was found and updated
+        if (!updatedUser) {
+            return res.status(400).json({ status: false, message: "User not found with the provided ID." });
+        }
+
+        // Return the updated user details with a success message
+        return res.status(201).json({
+            status: true,
+            message: "User profile and role updated successfully.",
+            updatedUser
+        });
+    } catch (error) {
+        // Handle any errors that occur
+        return next(new ErrorHandler(400, error.message || 'Internal Server Error'));
+    }
+};
+
 
 
 

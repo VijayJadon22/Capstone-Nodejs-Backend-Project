@@ -11,7 +11,9 @@ import {
     updateUserProfile,
     getAllUsers,
     getUserDetailsForAdmin,
-    deleteUser
+    deleteUser,
+    logoutUser,
+    updateUserProfileAndRole
 } from "../controller/user.controller.js";
 
 const router = express.Router();
@@ -29,6 +31,7 @@ router.route("/profile/update").put(auth, updateUserProfile);
 
 //get routes
 router.route("/details").get(auth, getUserDetails);
+router.route("/logout").get(auth, logoutUser);
 
 
 /*Admin only routes */
@@ -38,6 +41,9 @@ router.route("/admin/details/:id").get(auth, authByUserRole("admin"), getUserDet
 
 //DELETE routes
 router.route("/admin/delete/:id").delete(auth, authByUserRole("admin"), deleteUser);
+
+//PUT routes
+router.route("/admin/update/:id").put(auth, authByUserRole("admin"), updateUserProfileAndRole);
 
 
 

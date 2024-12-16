@@ -39,5 +39,17 @@ export const getAllUsersRepo = async () => {
 
 export const deleteUserRepo = async (id) => {
     return await UserModel.findByIdAndDelete(id);
-}
+};
 
+export const updateUserRoleAndProfileRepo = async (_id, data) => {
+    // Write your code here for updating the roles of other users by admin
+    return await UserModel.findByIdAndUpdate(
+        _id,
+        data,
+        {
+            new: true,
+            runValidators: true,
+            useFindAndModify: false,
+        }
+    )
+};
