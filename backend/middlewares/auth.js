@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 // Middleware function to authenticate users
 export const auth = async (req, res, next) => {
     try {
-        const {token}  = req.cookies;
+        const { token } = req.cookies;
         if (!token) {
             return next(new ErrorHandler(401, "Login to access this route!"));
         }
@@ -35,10 +35,13 @@ export const auth = async (req, res, next) => {
  ...roles creates an array of arguments or roles, and then middleware checks if in the array the user role matches with the roles having access */
 export const authByUserRole = (...roles) => {
     return async (req, res, next) => {
+        if (!req.user) {
+            return next(new ErrorHandler(401, 'User not authenticated'));
+        }
+        
         if (!roles.includes(req.user.role)) {
             return next(new ErrorHandler(403, `Role: ${req.user.role} is not allowed to access this resource`));
         }
-
         next();
     }
 };
